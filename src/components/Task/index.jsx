@@ -6,10 +6,10 @@ const Task = ({ task , handleDeleteForm}) => {
             <p>Title: {task.text.slice(0, 15)}</p>
             <p>Text: {task.text}</p>
             <div>
-                <button clasName="btn btn-danger" onClick={()=>handleDeleteForm(task._id)}>
+                <button className="btn btn-danger" onClick={()=>handleDeleteForm(task._id)}>
                 <FontAwesomeIcon icon={faTrash} />
                 </button >
-                <button clasName="btn btn-danger" >
+                <button className="btn btn-warning" >
                 <FontAwesomeIcon icon={faEdit} />
                 </button >
             </div>

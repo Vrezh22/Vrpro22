@@ -4,10 +4,9 @@ import Todo from './components/ToDO';
 
 class App extends Component {
   render() {
-    const { state: { toDo: { tasks } } } = this.props;
     return (
       <div>
-        <Todo tasks={tasks}/>
+        <Todo />
       </div>
     )
   }
