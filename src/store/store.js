@@ -49,21 +49,23 @@ const store = {
                 })
                 break;
             }
-            // case 'DELPOST':{
-            //     const tasks = [...this.state.toDo.tasks];
-            //     this.setState({
-            //         ...this.state,
-            //         toDo: {
-            //             ...this.state.toDo,
-            //             tasks
-            //         }
-            //     })
-            //     break
-            // }
+            case 'DELETEPOST': {
+                let tasks = [...this.state.toDo.tasks];
+                const { _id } = action;
+                tasks = tasks.filter(task => task._id !== _id);
+                this.setState({
+                    ...this.state,
+                    toDo: {
+                        ...this.state.toDo,
+                        tasks
+                    }
+                })
+                break
+            }
 
             default: return;
         }
-       
+
     }
 }
 export const dispatch = store.dispatch.bind(store);

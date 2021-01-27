@@ -28,10 +28,12 @@ class Todo extends React.Component {
         })
     }
     handleDeleteForm = (_id) => {
-        const { tasks } = this.props;
-        return this.setState((prevState) => ({
-            tasks: prevState.tasks.filter(task => tasks._id !== _id),
-        }))
+        const action = {
+            type: 'DELETEPOST',
+            _id
+        }
+        return dispatch(action);
+
     }
 
 
@@ -39,7 +41,7 @@ class Todo extends React.Component {
         const { tasks } = this.props;
         const { inputValue } = this.state;
         const tasksJSX = tasks.map(task => {
-          
+
             return (
                 <Col key={task._id} xs={12} sm={6} md={4} style={{ border: '1px solid black' }}>
                     <Task task={task} handleDeleteForm={this.handleDeleteForm} />
