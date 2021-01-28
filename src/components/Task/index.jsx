@@ -9,7 +9,7 @@ const Task = ({ task , handleDeleteForm}) => {
                 <button clasName="btn btn-danger" onClick={()=>handleDeleteForm(task._id)}>
                 <FontAwesomeIcon icon={faTrash} />
                 </button >
-                <button clasName="btn btn-danger" >
+                <button clasName="btn btn-warning" >
                 <FontAwesomeIcon icon={faEdit} />
                 </button >
             </div>

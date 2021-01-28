@@ -2,7 +2,7 @@ import { Container, Row, Col } from 'react-bootstrap';
 import React from 'react';
 import TodoForm from '../TodoForm';
 import Task from '../Task';
-import { dispatch } from '../../store/store';
+import { connect } from 'react-redux';
 
 class Todo extends React.Component {
     state = {
@@ -16,22 +16,13 @@ class Todo extends React.Component {
     handleSubmitForm = (event) => {
         if (!this.state.inputValue)
             return;
-
-        const action = {
-            type: 'ADDPOST',
-            text: this.state.inputValue
-        }
-        dispatch(action);
-
+        this.props.addPost(this.state.inputValue);
         this.setState({
             inputValue: ''
         })
     }
     handleDeleteForm = (_id) => {
-        const { tasks } = this.props;
-        return this.setState((prevState) => ({
-            tasks: prevState.tasks.filter(task => tasks._id !== _id),
-        }))
+        return this.props.deletePost(_id);
     }
 
 
@@ -39,7 +30,7 @@ class Todo extends React.Component {
         const { tasks } = this.props;
         const { inputValue } = this.state;
         const tasksJSX = tasks.map(task => {
-          
+
             return (
                 <Col key={task._id} xs={12} sm={6} md={4} style={{ border: '1px solid black' }}>
                     <Task task={task} handleDeleteForm={this.handleDeleteForm} />
@@ -67,4 +58,17 @@ class Todo extends React.Component {
     }
 }
 
-export default Todo;
+const mapStateToProps = (state) => {
+    return {
+        tasks: state.todoState.tasks
+    }
+}
+const mapDispacthToProps = (dispatch) => {
+    return{
+        addPost: (text)=> dispatch({type:'ADDPOST' , text:text}),
+        deletePost:(_id)=> dispatch({type:'DELETEPOST', _id:_id})
+    }
+}
+const TodoContainer = connect(mapStateToProps,mapDispacthToProps)(Todo);
+
+export default TodoContainer;
