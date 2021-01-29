@@ -27,7 +27,7 @@ const TodoReducer = (state = initialState, action) => {
             }
         }
 
-        case 'ADDPOST': {
+        case 'ADDTask': {
             const tasks = [...state.tasks];
             tasks.push({
                 _id: idGenerator(),
@@ -38,12 +38,21 @@ const TodoReducer = (state = initialState, action) => {
                 tasks
             }
         }
-        case 'DELETEPOST': {
+        case 'DELETETask': {
 
             let tasks = [...state.tasks];
             const { _id } = action;
-            
+
             tasks = tasks.filter(task => task._id !== _id);
+            return {
+                ...state,
+                tasks
+            }
+        }
+        case 'EDIT_TASK': {
+            const tasks = [...state.tasks];
+            const idx = tasks.findIndex(task => task._id === action.task._id);
+            tasks[idx] = action.task;
             return {
                 ...state,
                 tasks
