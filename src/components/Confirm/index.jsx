@@ -10,6 +10,7 @@ class EditTaskModal extends React.Component {
         }
     }
 
+
     handleOnChange = (e) => {
         const { value } = e.target;
         this.setState(state => ({
@@ -18,11 +19,12 @@ class EditTaskModal extends React.Component {
         }));
     }
     handleSave = (e) => {
-        if(!this.state.text)return;
+
+        if (e.type === 'keydown' && e.key !== "Enter") return;
+        if (!this.state.text) return;
         const { editOneTask, onHide } = this.props;
         editOneTask({ ...this.state });
         onHide();
-
     }
     render() {
         const { onHide, data } = this.props;
@@ -40,12 +42,13 @@ class EditTaskModal extends React.Component {
                         Edit task {data._id}
                     </Modal.Title>
                 </Modal.Header>
-                <Modal.Body>
+                <Modal.Body onKeyDown={this.handleSave}>
                     <input
                         type="text"
                         className={styles.input}
                         onChange={this.handleOnChange}
                         value={text}
+
                     />
                 </Modal.Body>
                 <Modal.Footer>

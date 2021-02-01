@@ -1,9 +1,10 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTrash, faEdit } from '@fortawesome/free-solid-svg-icons'
 const Task = ({ task, handleDeleteForm, setEditTask, toggleSetAnyTasks,disabled }) => {
+
     return (
         <>
-            <div>
+            <div >
                 <input type="checkbox" onClick={() => toggleSetAnyTasks(task._id)} />
             </div>
             <p>Title: {task.text.slice(0, 15)}</p>
@@ -15,7 +16,10 @@ const Task = ({ task, handleDeleteForm, setEditTask, toggleSetAnyTasks,disabled 
                 <button
                     className="btn btn-warning"
                     style={{ marginLeft: '15px' }}
-                    onClick={() => setEditTask(task)}
+                    onClick={() =>{
+                        console.log('Tak CLick');
+                        setEditTask(task);
+                    }}
                     disabled={disabled}
                 >
                     <FontAwesomeIcon icon={faEdit} />

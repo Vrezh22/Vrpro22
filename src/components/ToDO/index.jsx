@@ -4,12 +4,19 @@ import { connect } from 'react-redux';
 import TodoForm from '../TodoForm';
 import Task from '../Task';
 import EditTaskModal from '../Confirm';
+import ConfirmDelete from '../ConfirmDelete';
 
 class Todo extends React.Component {
     state = {
         inputValue: '',
         editTask: null,
-        removeTasks: new Set()
+        removeTasks: new Set(),
+        isConfirmDeleteModalOpen: false
+    }
+    toggleConfirmDeleteModalOpen = () => {
+        this.setState({
+            isConfirmDeleteModalOpen: !this.state.isConfirmDeleteModalOpen
+        });
     }
     toggleSetAnyTasks = (_id) => {
         const removeTasks = new Set(this.state.removeTasks);
@@ -31,7 +38,6 @@ class Todo extends React.Component {
         if (!this.state.inputValue)
             return;
         this.props.addPost(this.state.inputValue);
-
         this.setState({
             inputValue: ''
         })
@@ -55,14 +61,15 @@ class Todo extends React.Component {
     handleDeleteAnyTasks = (e) => {
         this.props.deleteAnyTasks(this.state.removeTasks);
         this.setState({
-            removeTasks:new Set() 
+            removeTasks: new Set(),
+            isConfirmDeleteModalOpen: false
         });
 
     }
 
     render() {
         const { tasks, editOneTask } = this.props;
-        const { inputValue, editTask, removeTasks } = this.state;
+        const { inputValue, editTask, removeTasks, isConfirmDeleteModalOpen } = this.state;
         const tasksJSX = tasks.map(task => {
             const colInlineStyle = {
                 border: '1px solid black',
@@ -72,6 +79,9 @@ class Todo extends React.Component {
                 alignItems: 'center',
                 padding: '15px'
             }
+            if (Array.from(this.state.removeTasks).includes(task._id))
+                colInlineStyle.opacity = '.6';
+
             return (
                 <Col key={task._id} xs={12} sm={6} md={4} style={colInlineStyle} >
                     <Task
@@ -103,17 +113,27 @@ class Todo extends React.Component {
                         <Button
                             variant="danger"
                             disabled={!removeTasks.size}
-                            onClick={this.handleDeleteAnyTasks}
+                            onClick={this.toggleConfirmDeleteModalOpen}
                         >
                             Delete All
                               </Button>
                     </Row>
                 </Container>
                 {
-                    editTask && <EditTaskModal
+                    editTask &&
+                    <EditTaskModal
                         onHide={this.clearEditTask}
                         data={editTask}
                         editOneTask={editOneTask}
+                    />
+                }
+
+                {
+                    isConfirmDeleteModalOpen &&
+                    <ConfirmDelete
+                        toggleConfirmDeleteModalOpen={this.toggleConfirmDeleteModalOpen}
+                        handleDeleteAnyTasks={this.handleDeleteAnyTasks}
+                        count ={removeTasks.size}
                     />
                 }
             </>

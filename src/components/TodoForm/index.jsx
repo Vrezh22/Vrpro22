@@ -2,7 +2,7 @@ import styles from './todoForm.module.css';
 
 const TodoForm = ({ inputValue, handleOnChange, handleSubmitForm, disabled }) => {
     return (
-        <div className={styles.todoForm}>
+        <div className={styles.todoForm} onKeyDown={e => e.key === 'Enter' ? handleSubmitForm() : null}>
             <input
                 type='text'
                 placeholder='Գրիր նոր նյութ'
