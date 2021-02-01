@@ -1,4 +1,4 @@
-import { Container, Row, Col,Button } from 'react-bootstrap';
+import { Container, Row, Col, Button } from 'react-bootstrap';
 import React from 'react';
 import { connect } from 'react-redux';
 import TodoForm from '../TodoForm';
@@ -52,9 +52,17 @@ class Todo extends React.Component {
         }))
     }
 
+    handleDeleteAnyTasks = (e) => {
+        this.props.deleteAnyTasks(this.state.removeTasks);
+        this.setState({
+            removeTasks:new Set() 
+        });
+
+    }
+
     render() {
         const { tasks, editOneTask } = this.props;
-        const { inputValue, editTask  ,removeTasks} = this.state;
+        const { inputValue, editTask, removeTasks } = this.state;
         const tasksJSX = tasks.map(task => {
             const colInlineStyle = {
                 border: '1px solid black',
@@ -92,7 +100,13 @@ class Todo extends React.Component {
                         {tasksJSX}
                     </Row>
                     <Row className="mt-5">
-                         <Button variant="danger" disabled={!removeTasks.size}>Delete All</Button> 
+                        <Button
+                            variant="danger"
+                            disabled={!removeTasks.size}
+                            onClick={this.handleDeleteAnyTasks}
+                        >
+                            Delete All
+                              </Button>
                     </Row>
                 </Container>
                 {
@@ -115,7 +129,8 @@ const mapDispacthToProps = (dispatch) => {
     return {
         addPost: (text) => dispatch({ type: 'ADDTask', text: text }),
         deletePost: (_id) => dispatch({ type: 'DELETETask', _id: _id }),
-        editOneTask: (task) => dispatch({ type: 'EDIT_TASK', task })
+        editOneTask: (task) => dispatch({ type: 'EDIT_TASK', task }),
+        deleteAnyTasks: (removeTasks) => dispatch({ type: 'DELETE_ANY_TASKS', removeTasks })
     }
 }
 const TodoContainer = connect(mapStateToProps, mapDispacthToProps)(Todo);
