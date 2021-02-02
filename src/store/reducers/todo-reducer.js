@@ -58,6 +58,16 @@ const TodoReducer = (state = initialState, action) => {
                 tasks
             }
         }
+        case "DELETE_ANY_TASKS": {
+            let { removeTasks } = action;
+            removeTasks = Array.from(removeTasks);
+            let tasks = [...state.tasks];
+            tasks = tasks.filter(task => !removeTasks.includes(task._id));
+            return {
+                ...state,
+                tasks
+            }
+        }
 
         default: return state;
     }

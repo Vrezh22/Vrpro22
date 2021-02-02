@@ -1,15 +1,22 @@
-import { Container, Row, Col,Button } from 'react-bootstrap';
+import { Container, Row, Col, Button } from 'react-bootstrap';
 import React from 'react';
 import { connect } from 'react-redux';
 import TodoForm from '../TodoForm';
 import Task from '../Task';
 import EditTaskModal from '../Confirm';
+import ConfirmDelete from '../ConfirmDelete';
 
 class Todo extends React.Component {
     state = {
         inputValue: '',
         editTask: null,
-        removeTasks: new Set()
+        removeTasks: new Set(),
+        isConfirmDeleteModalOpen: false
+    }
+    toggleConfirmDeleteModalOpen = () => {
+        this.setState({
+            isConfirmDeleteModalOpen: !this.state.isConfirmDeleteModalOpen
+        });
     }
     toggleSetAnyTasks = (_id) => {
         const removeTasks = new Set(this.state.removeTasks);
@@ -51,10 +58,17 @@ class Todo extends React.Component {
             editTask
         }))
     }
+    handleDeleteAnyTasks = (e) => {
+        this.props.deleteAnyTasks(this.state.removeTasks);
+        this.setState({
+            removeTasks: new Set(),
+            isConfirmDeleteModalOpen: false
+        });
 
+    }
     render() {
         const { tasks, editOneTask } = this.props;
-        const { inputValue, editTask  ,removeTasks} = this.state;
+        const { inputValue, editTask, removeTasks, isConfirmDeleteModalOpen } = this.state;
         const tasksJSX = tasks.map(task => {
             const colInlineStyle = {
                 border: '1px solid black',
@@ -64,6 +78,8 @@ class Todo extends React.Component {
                 alignItems: 'center',
                 padding: '15px'
             }
+            if (Array.from(this.state.removeTasks).includes(task._id))
+                colInlineStyle.opacity = '.6';
             return (
                 <Col key={task._id} xs={12} sm={6} md={4} style={colInlineStyle} >
                     <Task
@@ -92,7 +108,12 @@ class Todo extends React.Component {
                         {tasksJSX}
                     </Row>
                     <Row className="mt-5">
-                         <Button variant="danger" disabled={!removeTasks.size}>Delete All</Button> 
+                        <Button
+                            variant="danger"
+                            disabled={!removeTasks.size}
+                            onClick={this.toggleConfirmDeleteModalOpen}
+                        >
+                            Delete All</Button>
                     </Row>
                 </Container>
                 {
@@ -100,6 +121,14 @@ class Todo extends React.Component {
                         onHide={this.clearEditTask}
                         data={editTask}
                         editOneTask={editOneTask}
+                    />
+                }
+                {
+                    isConfirmDeleteModalOpen &&
+                    <ConfirmDelete
+                        toggleConfirmDeleteModalOpen={this.toggleConfirmDeleteModalOpen}
+                        handleDeleteAnyTasks={this.handleDeleteAnyTasks}
+                        count={removeTasks.size}
                     />
                 }
             </>
@@ -115,7 +144,8 @@ const mapDispacthToProps = (dispatch) => {
     return {
         addPost: (text) => dispatch({ type: 'ADDTask', text: text }),
         deletePost: (_id) => dispatch({ type: 'DELETETask', _id: _id }),
-        editOneTask: (task) => dispatch({ type: 'EDIT_TASK', task })
+        editOneTask: (task) => dispatch({ type: 'EDIT_TASK', task }),
+        deleteAnyTasks: (removeTasks) => dispatch({ type: 'DELETE_ANY_TASKS', removeTasks })
     }
 }
 const TodoContainer = connect(mapStateToProps, mapDispacthToProps)(Todo);
