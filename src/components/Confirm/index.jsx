@@ -19,8 +19,7 @@ class EditTaskModal extends React.Component {
         }));
     }
     handleSave = (e) => {
-
-        if (e.type === 'keydown' && e.key !== "Enter") return;
+        if (e.type === 'keypress' && e.key !== "Enter") return;
         if (!this.state.text) return;
         const { editOneTask, onHide } = this.props;
         editOneTask({ ...this.state });
@@ -42,7 +41,7 @@ class EditTaskModal extends React.Component {
                         Edit task {data._id}
                     </Modal.Title>
                 </Modal.Header>
-                <Modal.Body onKeyDown={this.handleSave}>
+                <Modal.Body onKeyPress={this.handleSave}>
                     <input
                         type="text"
                         className={styles.input}
