@@ -5,10 +5,19 @@ import TodoForm from '../TodoForm';
 import Task from '../Task';
 import EditTaskModal from '../Confirm';
 import ConfirmDelete from '../ConfirmDelete';
+//Action Creators 
+import {
+    addPostActionCreator,
+    deletePostActionCreator,
+    editOneTaskAC,
+    deleteAnyTasksAC,
+    setTasksAC
+} from '../../store/actionCreators';
 
 class Todo extends React.Component {
     state = {
         inputValue: '',
+        isaddPostSubmit: false,
         editTask: null,
         removeTasks: new Set(),
         isConfirmDeleteModalOpen: false
@@ -18,12 +27,12 @@ class Todo extends React.Component {
             isConfirmDeleteModalOpen: !this.state.isConfirmDeleteModalOpen
         });
     }
-    toggleSetAnyTasks = (_id) => {
+    toggleSetAnyTasks = (id) => {
         const removeTasks = new Set(this.state.removeTasks);
-        if (removeTasks.has(_id))
-            removeTasks.delete(_id);
+        if (removeTasks.has(id))
+            removeTasks.delete(id);
         else
-            removeTasks.add(_id);
+            removeTasks.add(id);
 
         this.setState({
             removeTasks
@@ -37,13 +46,14 @@ class Todo extends React.Component {
     handleSubmitForm = (event) => {
         if (!this.state.inputValue)
             return;
-        this.props.addPost(this.state.inputValue);
+
         this.setState({
-            inputValue: ''
+            isaddPostSubmit: true
         })
+
     }
-    handleDeleteForm = (_id) => {
-        return this.props.deletePost(_id);
+    handleDeleteForm = (id) => {
+        return this.props.deletePost(id);
 
     }
     clearEditTask = () => {
@@ -67,6 +77,41 @@ class Todo extends React.Component {
 
     }
 
+    componentDidMount() {
+        (async () => {
+            const response = await fetch('https://jsonplaceholder.typicode.com/todos');
+            const data = await response.json();
+            this.props.setTasks(data);
+        })()
+    }
+    componentDidUpdate() {
+        if (this.state.isaddPostSubmit) {
+            this.setState({
+                isaddPostSubmit: false
+            })
+            const newTask = {
+                title: this.state.inputValue,
+                userId: 1,
+                completed: false
+            }
+
+            fetch('https://jsonplaceholder.typicode.com/todos', {
+                method: 'POST',
+                body: JSON.stringify(newTask),
+                headers: {
+                    'Content-Type': 'application/json ;charset=UTF-8'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    this.props.addPost(data);
+                    this.setState({
+                        inputValue: '',
+                    })
+                })
+
+        }
+    }
     render() {
         const { tasks, editOneTask } = this.props;
         const { inputValue, editTask, removeTasks, isConfirmDeleteModalOpen } = this.state;
@@ -79,11 +124,11 @@ class Todo extends React.Component {
                 alignItems: 'center',
                 padding: '15px'
             }
-            if (Array.from(this.state.removeTasks).includes(task._id))
+            if (Array.from(this.state.removeTasks).includes(task.id))
                 colInlineStyle.opacity = '.6';
 
             return (
-                <Col key={task._id} xs={12} sm={6} md={4} style={colInlineStyle} >
+                <Col key={task.id} xs={12} sm={6} md={4} style={colInlineStyle} >
                     <Task
                         task={task}
                         handleDeleteForm={this.handleDeleteForm}
@@ -133,7 +178,7 @@ class Todo extends React.Component {
                     <ConfirmDelete
                         toggleConfirmDeleteModalOpen={this.toggleConfirmDeleteModalOpen}
                         handleDeleteAnyTasks={this.handleDeleteAnyTasks}
-                        count ={removeTasks.size}
+                        count={removeTasks.size}
                     />
                 }
             </>
@@ -145,13 +190,14 @@ const mapStateToProps = (state) => {
         tasks: state.todoState.tasks
     }
 }
-const mapDispacthToProps = (dispatch) => {
+const mapDispatchToProps = (dispatch) => {
     return {
-        addPost: (text) => dispatch({ type: 'ADDTask', text: text }),
-        deletePost: (_id) => dispatch({ type: 'DELETETask', _id: _id }),
-        editOneTask: (task) => dispatch({ type: 'EDIT_TASK', task }),
-        deleteAnyTasks: (removeTasks) => dispatch({ type: 'DELETE_ANY_TASKS', removeTasks })
+        addPost: (newTask) => dispatch(addPostActionCreator(newTask)),
+        deletePost: (id) => dispatch(deletePostActionCreator(id)),
+        editOneTask: (task) => dispatch(editOneTaskAC(task)),
+        deleteAnyTasks: (removeTasks) => dispatch(deleteAnyTasksAC(removeTasks)),
+        setTasks: (tasks) => dispatch(setTasksAC(tasks))
     }
 }
-const TodoContainer = connect(mapStateToProps, mapDispacthToProps)(Todo);
+const TodoContainer = connect(mapStateToProps, mapDispatchToProps)(Todo);
 export default TodoContainer;

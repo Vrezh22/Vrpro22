@@ -1,16 +1,16 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faTrash, faEdit } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrash, faEdit } from '@fortawesome/free-solid-svg-icons';
+import { memo } from 'react';
 const Task = ({ task, handleDeleteForm, setEditTask, toggleSetAnyTasks, disabled }) => {
-
     return (
         <>
             <div >
-                <input type="checkbox" onClick={() => toggleSetAnyTasks(task._id)} />
+                <input type="checkbox" onClick={() => toggleSetAnyTasks(task.id)} />
             </div>
-            <p>Title: {task.text.slice(0, 15)}</p>
-            <p>Text: {task.text}</p>
+            <p>Title: {task.title.slice(0, 15)}</p>
+            <p>Text: {task.title}</p>
             <div>
-                <button className="btn btn-danger" onClick={() => handleDeleteForm(task._id)} disabled={disabled}>
+                <button className="btn btn-danger" onClick={() => handleDeleteForm(task.id)} disabled={disabled}>
                     <FontAwesomeIcon icon={faTrash} />
                 </button >
                 <button
@@ -25,4 +25,4 @@ const Task = ({ task, handleDeleteForm, setEditTask, toggleSetAnyTasks, disabled
         </>
     )
 }
-export default Task;
+export default memo(Task);
