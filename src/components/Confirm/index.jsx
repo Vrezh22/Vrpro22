@@ -10,24 +10,24 @@ class EditTaskModal extends React.Component {
         }
     }
 
+
     handleOnChange = (e) => {
         const { value } = e.target;
         this.setState(state => ({
             ...state,
-            text: value,
+            title: value,
         }));
     }
     handleSave = (e) => {
-        if(!this.state.text)return;
         if (e.type === 'keypress' && e.key !== "Enter") return;
+        if (!this.state.title) return;
         const { editOneTask, onHide } = this.props;
         editOneTask({ ...this.state });
         onHide();
-
     }
     render() {
         const { onHide, data } = this.props;
-        const { text } = this.state;
+        const { title } = this.state;
         return (
             <Modal
                 show={true}
@@ -38,7 +38,7 @@ class EditTaskModal extends React.Component {
             >
                 <Modal.Header closeButton>
                     <Modal.Title id="contained-modal-title-vcenter">
-                        Edit task {data._id}
+                        Edit task {data.id}
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body onKeyPress={this.handleSave}>
@@ -46,7 +46,8 @@ class EditTaskModal extends React.Component {
                         type="text"
                         className={styles.input}
                         onChange={this.handleOnChange}
-                        value={text}
+                        value={title}
+
                     />
                 </Modal.Body>
                 <Modal.Footer>
