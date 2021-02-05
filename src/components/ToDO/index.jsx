@@ -7,17 +7,16 @@ import EditTaskModal from '../Confirm';
 import ConfirmDelete from '../ConfirmDelete';
 //Action Creators 
 import {
-    addPostActionCreator,
-    deletePostActionCreator,
+    deleteOneTaskActionCreator,
     editOneTaskAC,
     deleteAnyTasksAC,
-    setTasksAC
 } from '../../store/actionCreators';
+//thunk
+import { setTasksThunk, addTaskThunk } from '../../store/thunks/taskTunks';
 
 class Todo extends React.Component {
     state = {
         inputValue: '',
-        isaddPostSubmit: false,
         editTask: null,
         removeTasks: new Set(),
         isConfirmDeleteModalOpen: false
@@ -46,16 +45,26 @@ class Todo extends React.Component {
     handleSubmitForm = (event) => {
         if (!this.state.inputValue)
             return;
-
+        const newTask = {
+            title: this.state.inputValue,
+            userId: 1,
+            completed: false
+        }
+        this.props.addTask(newTask);
         this.setState({
-            isaddPostSubmit: true
-        })
+            inputValue: ''
+        });
 
     }
     handleDeleteForm = (id) => {
-        return this.props.deletePost(id);
-
+        const { deleteOneTask } = this.props;
+        (async function () {
+            const response = await fetch('https://jsonplaceholder.typicode.com/todos/' + id);
+            const data = await response.json();
+            deleteOneTask(data.id);
+        })()
     }
+
     clearEditTask = () => {
         this.setState({
             editTask: null
@@ -76,44 +85,33 @@ class Todo extends React.Component {
         });
 
     }
-
-    componentDidMount() {
+    handleEditOneTask = (editTask) => {
         (async () => {
-            const response = await fetch('https://jsonplaceholder.typicode.com/todos');
-            const data = await response.json();
-            this.props.setTasks(data);
-        })()
-    }
-    componentDidUpdate() {
-        if (this.state.isaddPostSubmit) {
-            this.setState({
-                isaddPostSubmit: false
-            })
-            const newTask = {
-                title: this.state.inputValue,
-                userId: 1,
-                completed: false
+            try {
+                const response = await fetch('https://jsonplaceholder.typicode.com/todos/' + editTask.id, {
+                    method: 'PUT',
+                    body: JSON.stringify(editTask),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                if (!response.ok)
+                    throw response
+
+                const data = await response.json();
+                this.props.editOneTask(data);
+
+            } catch (error) {
+                console.log('EDIT TASK ERROR', error);
             }
+        })()
 
-            fetch('https://jsonplaceholder.typicode.com/todos', {
-                method: 'POST',
-                body: JSON.stringify(newTask),
-                headers: {
-                    'Content-Type': 'application/json ;charset=UTF-8'
-                }
-            })
-                .then(response => response.json())
-                .then(data => {
-                    this.props.addPost(data);
-                    this.setState({
-                        inputValue: '',
-                    })
-                })
-
-        }
+    }
+    componentDidMount() {
+        this.props.setTasks();
     }
     render() {
-        const { tasks, editOneTask } = this.props;
+        const { tasks } = this.props;
         const { inputValue, editTask, removeTasks, isConfirmDeleteModalOpen } = this.state;
         const tasksJSX = tasks.map(task => {
             const colInlineStyle = {
@@ -169,7 +167,7 @@ class Todo extends React.Component {
                     <EditTaskModal
                         onHide={this.clearEditTask}
                         data={editTask}
-                        editOneTask={editOneTask}
+                        editOneTask={this.handleEditOneTask}
                     />
                 }
 
@@ -190,13 +188,14 @@ const mapStateToProps = (state) => {
         tasks: state.todoState.tasks
     }
 }
+
 const mapDispatchToProps = (dispatch) => {
     return {
-        addPost: (newTask) => dispatch(addPostActionCreator(newTask)),
-        deletePost: (id) => dispatch(deletePostActionCreator(id)),
+        addTask: (newTask) => dispatch(addTaskThunk(newTask)),
+        deleteOneTask: (id) => dispatch(deleteOneTaskActionCreator(id)),
         editOneTask: (task) => dispatch(editOneTaskAC(task)),
         deleteAnyTasks: (removeTasks) => dispatch(deleteAnyTasksAC(removeTasks)),
-        setTasks: (tasks) => dispatch(setTasksAC(tasks))
+        setTasks: () => dispatch(setTasksThunk()),
     }
 }
 const TodoContainer = connect(mapStateToProps, mapDispatchToProps)(Todo);
