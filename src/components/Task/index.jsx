@@ -8,7 +8,7 @@ const Task = ({ task, handleDeleteForm, setEditTask, toggleSetAnyTasks, disabled
                 <input type="checkbox" onClick={() => toggleSetAnyTasks(task.id)} />
             </div>
             <p>Title: {task.title.slice(0, 15)}</p>
-            <p>Text: {task.title}</p>
+
             <div>
                 <button className="btn btn-danger" onClick={() => handleDeleteForm(task.id)} disabled={disabled}>
                     <FontAwesomeIcon icon={faTrash} />
@@ -21,6 +21,11 @@ const Task = ({ task, handleDeleteForm, setEditTask, toggleSetAnyTasks, disabled
                 >
                     <FontAwesomeIcon icon={faEdit} />
                 </button >
+                <button
+                    className="btn btn-primary"
+                    style={{ marginLeft: '15px' }}
+                >
+                    {task.complited ? 'InActive' : 'Active'}</button>
             </div>
         </>
     )

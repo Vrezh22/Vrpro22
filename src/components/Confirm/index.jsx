@@ -1,62 +1,48 @@
 import styles from './confirm.module.css';
 import React from 'react';
 import { Modal, Button } from 'react-bootstrap';
+import { reduxForm, Field } from 'redux-form';
 
-class EditTaskModal extends React.Component {
-    constructor(props) {
-        super();
-        this.state = {
-            ...props.data,
-        }
+const EditTaskModal = (props) => {
+    const {  handleSubmit  ,onHide} = props;
+    const handleSave = (e) => {
+        if (e.type === 'keypress' && e.key !== "Enter") return;     
+        handleSubmit();
     }
 
 
-    handleOnChange = (e) => {
-        const { value } = e.target;
-        this.setState(state => ({
-            ...state,
-            title: value,
-        }));
-    }
-    handleSave = (e) => {
-        if (e.type === 'keypress' && e.key !== "Enter") return;
-        if (!this.state.title) return;
-        const { editOneTask, onHide } = this.props;
-        editOneTask({ ...this.state });
-        onHide();
-    }
-    render() {
-        const { onHide, data } = this.props;
-        const { title } = this.state;
-        return (
-            <Modal
-                show={true}
-                size="lg"
-                aria-labelledby="contained-modal-title-vcenter"
-                centered
-                onHide={onHide}
-            >
-                <Modal.Header closeButton>
-                    <Modal.Title id="contained-modal-title-vcenter">
-                        Edit task {data.id}
-                    </Modal.Title>
-                </Modal.Header>
-                <Modal.Body onKeyPress={this.handleSave}>
-                    <input
-                        type="text"
-                        className={styles.input}
-                        onChange={this.handleOnChange}
-                        value={title}
+    return (
+        <Modal
+            show={true}
+            size="lg"
+            aria-labelledby="contained-modal-title-vcenter"
+            centered
+            onHide={onHide}
+        >
+            <Modal.Header closeButton>
+                <Modal.Title id="contained-modal-title-vcenter">
+                    Edit task
+                </Modal.Title>
+            </Modal.Header>
+            <Modal.Body onKeyPress={handleSave}>
+                <Field
+                    name="title"
+                    type="text"
+                    className={styles.input}
+                    component="input"
+                />
+            </Modal.Body>
+            <Modal.Footer>
+                <Button variant="danger" onClick={onHide}>Close</Button>
+                <Button variant="warning" onClick={handleSave}>Save</Button>
+            </Modal.Footer>
+        </Modal>
+    );
 
-                    />
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="danger" onClick={onHide}>Close</Button>
-                    <Button variant="warning" onClick={this.handleSave}>Save</Button>
-                </Modal.Footer>
-            </Modal>
-        );
-    };
 }
 
-export default EditTaskModal;
+const EditTaskRedux = reduxForm({
+    form: 'editTaskForm'
+})(EditTaskModal);
+
+export default EditTaskRedux;

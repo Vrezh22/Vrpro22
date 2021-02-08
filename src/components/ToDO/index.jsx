@@ -1,26 +1,35 @@
 import { Container, Row, Col, Button } from 'react-bootstrap';
 import React from 'react';
 import { connect } from 'react-redux';
-import TodoForm from '../TodoForm';
 import Task from '../Task';
 import EditTaskModal from '../Confirm';
 import ConfirmDelete from '../ConfirmDelete';
+import AddTaskModal from '../AddTaskModal';
 //Action Creators 
 import {
-    deleteOneTaskActionCreator,
-    editOneTaskAC,
-    deleteAnyTasksAC,
+    deleteAnyTasksAC
 } from '../../store/actionCreators';
 //thunk
-import { setTasksThunk, addTaskThunk } from '../../store/thunks/taskTunks';
+import {
+    setTasksThunk,
+    addTaskThunk,
+    EditTaskThunk,
+    deleteOneTaskTunk
+} from '../../store/thunks/taskTunks';
 
 class Todo extends React.Component {
     state = {
-        inputValue: '',
         editTask: null,
         removeTasks: new Set(),
-        isConfirmDeleteModalOpen: false
+        isConfirmDeleteModalOpen: false,
+        isAddNewTaskModal: false
     }
+    toggleOpenAddTaskModal = () => {
+        this.setState({
+            isAddNewTaskModal: !this.state.isAddNewTaskModal
+        });
+    }
+
     toggleConfirmDeleteModalOpen = () => {
         this.setState({
             isConfirmDeleteModalOpen: !this.state.isConfirmDeleteModalOpen
@@ -37,32 +46,10 @@ class Todo extends React.Component {
             removeTasks
         })
     }
-    handleOnChange = ({ target }) => {
-        this.setState({
-            inputValue: target.value
-        })
-    }
-    handleSubmitForm = (event) => {
-        if (!this.state.inputValue)
-            return;
-        const newTask = {
-            title: this.state.inputValue,
-            userId: 1,
-            completed: false
-        }
-        this.props.addTask(newTask);
-        this.setState({
-            inputValue: ''
-        });
 
-    }
     handleDeleteForm = (id) => {
-        const { deleteOneTask } = this.props;
-        (async function () {
-            const response = await fetch('https://jsonplaceholder.typicode.com/todos/' + id);
-            const data = await response.json();
-            deleteOneTask(data.id);
-        })()
+        const { deleteOneTaskThunk } = this.props;
+        deleteOneTaskThunk(id);
     }
 
     clearEditTask = () => {
@@ -86,33 +73,34 @@ class Todo extends React.Component {
 
     }
     handleEditOneTask = (editTask) => {
-        (async () => {
-            try {
-                const response = await fetch('https://jsonplaceholder.typicode.com/todos/' + editTask.id, {
-                    method: 'PUT',
-                    body: JSON.stringify(editTask),
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-                if (!response.ok)
-                    throw response
+        if (editTask.title === '') return false;
+        this.props.EditTaskThunk(editTask, this.clearEditTask);
 
-                const data = await response.json();
-                this.props.editOneTask(data);
-
-            } catch (error) {
-                console.log('EDIT TASK ERROR', error);
-            }
-        })()
-
+    }
+    handleAddNewTask = (formData) => {
+        if (Object.keys(formData).length !== 1)
+            return;
+        const newTask = {
+            title: formData.title,
+            userId: 1,
+            completed: false
+        }
+        this.props.addTask(newTask); 
+        this.setState({
+            isAddNewTaskModal: false
+        })
     }
     componentDidMount() {
         this.props.setTasks();
     }
     render() {
         const { tasks } = this.props;
-        const { inputValue, editTask, removeTasks, isConfirmDeleteModalOpen } = this.state;
+        const {
+            editTask,
+            removeTasks,
+            isConfirmDeleteModalOpen,
+            isAddNewTaskModal
+        } = this.state;
         const tasksJSX = tasks.map(task => {
             const colInlineStyle = {
                 border: '1px solid black',
@@ -142,12 +130,12 @@ class Todo extends React.Component {
             <>
                 <Container>
                     <Row className="justify-content-center">
-                        <TodoForm
-                            inputValue={inputValue}
-                            handleOnChange={this.handleOnChange}
-                            handleSubmitForm={this.handleSubmitForm}
-                            disabled={!!removeTasks.size}
-                        />
+                        <Button
+                            variant="primary"
+                            onClick={this.toggleOpenAddTaskModal}
+                        >
+                            Add New Task
+                            </Button>
                     </Row>
                     <Row>
                         {tasksJSX}
@@ -166,8 +154,10 @@ class Todo extends React.Component {
                     editTask &&
                     <EditTaskModal
                         onHide={this.clearEditTask}
-                        data={editTask}
-                        editOneTask={this.handleEditOneTask}
+                        initialValues={{
+                            ...editTask
+                        }}
+                        onSubmit={this.handleEditOneTask}
                     />
                 }
 
@@ -177,6 +167,12 @@ class Todo extends React.Component {
                         toggleConfirmDeleteModalOpen={this.toggleConfirmDeleteModalOpen}
                         handleDeleteAnyTasks={this.handleDeleteAnyTasks}
                         count={removeTasks.size}
+                    />
+                }
+                {
+                    isAddNewTaskModal && <AddTaskModal
+                        onHide={this.toggleOpenAddTaskModal}
+                        onSubmit={this.handleAddNewTask}
                     />
                 }
             </>
@@ -192,8 +188,8 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
     return {
         addTask: (newTask) => dispatch(addTaskThunk(newTask)),
-        deleteOneTask: (id) => dispatch(deleteOneTaskActionCreator(id)),
-        editOneTask: (task) => dispatch(editOneTaskAC(task)),
+        deleteOneTaskThunk: (id) => dispatch(deleteOneTaskTunk(id)),
+        EditTaskThunk: (editTask, clearEditTask) => dispatch(EditTaskThunk(editTask, clearEditTask)),
         deleteAnyTasks: (removeTasks) => dispatch(deleteAnyTasksAC(removeTasks)),
         setTasks: () => dispatch(setTasksThunk()),
     }
