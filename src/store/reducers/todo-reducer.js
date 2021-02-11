@@ -1,4 +1,4 @@
-import idGenerator from '../../helpers/idGenerator';
+// import idGenerator from '../../helpers/idGenerator';
 import { ADD_TASK, DELETE_TASK, SET_TASKS, EDIT_TASK, DELETE_SOME_TASKS } from '../actionTypes';
 
 const initialState = {
