@@ -9,8 +9,6 @@ const EditTaskModal = (props) => {
         if (e.type === 'keypress' && e.key !== "Enter") return;     
         handleSubmit();
     }
-
-
     return (
         <Modal
             show={true}
@@ -33,7 +31,7 @@ const EditTaskModal = (props) => {
                 />
             </Modal.Body>
             <Modal.Footer>
-                <Button variant="danger" onClick={onHide}>Close</Button>
+                <Button variant="danger" onClick={(e)=>onHide()}>Close</Button>
                 <Button variant="warning" onClick={handleSave}>Save</Button>
             </Modal.Footer>
         </Modal>

@@ -37,13 +37,6 @@ const AddTaskModal = (props) => {
                     component="input"
                     placeholder="New Task Title"
                 />
-                {/* <Field
-                    name="text"
-                    type="text"
-                    className={styles.input}
-                    component="input"
-                    placeholder="New Task Text"
-                /> */}
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="danger" onClick={onHide}>Close</Button>
