@@ -11,7 +11,7 @@ const Request = () => {
             });
             setData(data);
         })();
-    }, [])
+    }, []);
 
     if (loading) return <p>Loading...</p>
     if (error) {
@@ -20,7 +20,7 @@ const Request = () => {
     }
     return (
         <div>
-            <h1>Resuest</h1>
+            <h1>Request</h1>
             <div>
                 <p>{data.body}</p>
             </div>

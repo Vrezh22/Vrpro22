@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-// import Todo from './components/ToDO';
+import Todo from './components/ToDO';
 // import UseStateHook from './test/useStateHook';
-import UseEffectHook from './test/useEffectHook';
+// import UseEffectHook from './test/useEffectHook';
 // import Request from './test/Request';
 class App extends Component {
   state = {
@@ -10,9 +10,9 @@ class App extends Component {
   render() {
     return (
       <div>
-        {/* <Todo /> */}
+        <Todo />
         {/* <UseStateHook /> */}
-        <UseEffectHook />
+        {/* <UseEffectHook /> */}
         {/* <Request /> */}
       </div>
     )

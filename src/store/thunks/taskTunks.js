@@ -2,7 +2,9 @@ import {
     setTasksAC,
     addTaskActionCreator,
     editOneTaskAC,
-    deleteOneTaskActionCreator
+    deleteOneTaskActionCreator,
+    toggleOpenAddTaskModalAC,
+    toggleEditTaskAC
 } from '../actionCreators';
 
 export const setTasksThunk = () => {
@@ -20,7 +22,14 @@ export const setTasksThunk = () => {
     }
 }
 
-export const addTaskThunk = (newTask) => {
+export const addTaskThunk = (formData) => {
+    if (Object.keys(formData).length !== 1)
+        return;
+    const newTask = {
+        title: formData.title,
+        userId: 1,
+        completed: false
+    }
     return (dispatch) => {
         fetch('https://jsonplaceholder.typicode.com/todos', {
             method: 'POST',
@@ -31,7 +40,9 @@ export const addTaskThunk = (newTask) => {
         })
             .then(response => response.json())
             .then(data => {
-                dispatch(addTaskActionCreator(data))
+                dispatch(addTaskActionCreator(data));
+                dispatch(toggleOpenAddTaskModalAC());
+
             })
             .catch(error => {
                 console.log('Error');
@@ -42,8 +53,8 @@ export const addTaskThunk = (newTask) => {
 }
 
 
-export const EditTaskThunk = (editTask, clearEditTask) => {
-
+export const EditTaskThunk = (editTask) => {
+    if (editTask.title === '') return false;
     return (dispatch) => {
         (async () => {
             try {
@@ -59,13 +70,11 @@ export const EditTaskThunk = (editTask, clearEditTask) => {
 
                 const data = await response.json();
                 dispatch(editOneTaskAC(data));
-                clearEditTask();
+                dispatch(toggleEditTaskAC());
             } catch (error) {
                 console.log('EDIT TASK ERROR', error);
             }
-        })()
-
-
+        })();
     }
 }
 

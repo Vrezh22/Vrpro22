@@ -1,5 +1,16 @@
 // import idGenerator from '../../helpers/idGenerator';
-import { ADD_TASK, DELETE_TASK, SET_TASKS, EDIT_TASK, DELETE_SOME_TASKS } from '../actionTypes';
+import {
+    ADD_TASK,
+    DELETE_TASK,
+    SET_TASKS,
+    EDIT_TASK,
+    DELETE_SOME_TASKS,
+    TOGGLE_EDIT_TASK,
+    TOGGLE_OPEN_ADDTASK_MODAL,
+    TOGGLE_OPEN_CONFIRM_DELETE_ANY_TASKS_MODAL,
+    TOGGLE_SET_DELETE_TASK
+
+} from '../actionTypes';
 
 const initialState = {
     tasks: [
@@ -15,7 +26,11 @@ const initialState = {
         //     _id: idGenerator(),
         //     text: 'Ալեքսանդրապոլ  քաղաքը այժմյան Գյումրեցիների բնակված տարածքն  և քաղաքի  անունը դրված է այդժամ Ռուս ցար Պյոտր 1-ի կնոջ Ալեքսանդրայի պատվին և հանդիսացել է թագուհու անձնական նստավայրը'
         // }
-    ]
+    ],
+    editTask: null,
+    isOpenAddTaskModal: false,
+    isConfirmDeleteModalOpen: false,
+    removeTasks: new Set()
 }
 
 
@@ -57,16 +72,47 @@ const TodoReducer = (state = initialState, action) => {
             }
         }
         case DELETE_SOME_TASKS: {
-            let { removeTasks } = action;
-            removeTasks = Array.from(removeTasks);
+            let { removeTasks } = state;
             let tasks = [...state.tasks];
-            tasks = tasks.filter(task => !removeTasks.includes(task.id));
+            tasks = tasks.filter(task => !removeTasks.has(task.id));
             return {
                 ...state,
-                tasks
+                tasks,
+                removeTasks: new Set(),
+                isConfirmDeleteModalOpen: false
+            }
+        }
+        case TOGGLE_EDIT_TASK: {
+            return {
+                ...state,
+                editTask: action.editTask
+            };
+        }
+        case TOGGLE_OPEN_ADDTASK_MODAL: {
+            return {
+                ...state,
+                isOpenAddTaskModal: !state.isOpenAddTaskModal
+            }
+        }
+        case TOGGLE_OPEN_CONFIRM_DELETE_ANY_TASKS_MODAL: {
+            return {
+                ...state,
+                isConfirmDeleteModalOpen: !state.isConfirmDeleteModalOpen
             }
         }
 
+        case TOGGLE_SET_DELETE_TASK: {
+            const removeTasks = new Set(state.removeTasks);
+            const { id } = action;
+            if (removeTasks.has(id))
+                removeTasks.delete(id);
+            else
+                removeTasks.add(id);
+            return {
+                ...state,
+                removeTasks
+            }
+        }
         default: return state;
     }
 }
